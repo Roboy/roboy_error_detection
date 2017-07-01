@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
         ros::init(argc, argv, "roboyErrorDetection");
     }
     RoboyErrorDetection handler;
-    handler.
+    // handler.
 
     return 0;
 }

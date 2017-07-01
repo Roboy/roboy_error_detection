@@ -4,7 +4,7 @@
 RoboyErrorDetection::RoboyErrorDetection() {
     nh = ros::NodeHandlePtr(new ros::NodeHandle);
 
-    motors_sub = nn.subscribe("/roboy/middleware/MotorStatus", 1, &RoboyErrorDetection::handleMotorStatusErrors, this);
+    motors_sub = nh->subscribe("/roboy/middleware/MotorStatus", 1, &RoboyErrorDetection::handleMotorStatusErrors, this);
 };
 
 void RoboyErrorDetection::handleMotorStatusErrors(const roboy_communication_middleware::MotorStatus::ConstPtr &msg) {
@@ -17,7 +17,7 @@ void RoboyErrorDetection::handleMotorStatusErrors(const roboy_communication_midd
     }
 }
 
-void RoboyErrorDetection::listenForDeadMotor(int motorId, int logLevel=WARNING_LEVEL) {
+void RoboyErrorDetection::listenForDeadMotor(int motorId, int logLevel) {
     // TODO: check for invalid input
 
     std::tuple<int,int> motorLogCombination (motorId,logLevel);

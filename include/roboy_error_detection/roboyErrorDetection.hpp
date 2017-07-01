@@ -2,13 +2,13 @@
 
 #include <ros/ros.h>
 #include <roboy_communication_control/SystemNotification.h>
-#include <roboy_system_notifications/roboySystemNotification.hpp>
+#include <roboy_communication_middleware/MotorStatus.h>
+#include <roboy_system_notification/roboySystemNotification.hpp>
 #include "common_utilities.hpp"
 #include <vector>
 #include <tuple>
 
 using namespace std;
-using namespace cv;
 
 class RoboyErrorDetection{
 public:
@@ -30,5 +30,5 @@ private:
     ros::Subscriber motors_sub;
     std::vector<std::tuple<int,int>> sub_dead_motors = {}; // [(motorId, reportLevel)]
 
-    RoboySystemNotification notifier = new RoboySystemNotification();
+    RoboySystemNotification notifier;
 };
