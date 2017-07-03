@@ -1,10 +1,9 @@
 #include "roboy_error_detection/roboyErrorDetection.hpp"
-#include <functional>   // std::bind
 
-RoboyErrorDetection::RoboyErrorDetection() {
-    nh = ros::NodeHandlePtr(new ros::NodeHandle);
+RoboyErrorDetection::RoboyErrorDetection(ros::NodeHandlePtr nh) {
+    notifier.setNodeHandler(nh);
 
-    motors_sub = nh->subscribe("/roboy/middleware/MotorStatus", 1, &RoboyErrorDetection::handleMotorStatusErrors, this);
+    motorSub = nh->subscribe("/roboy/middleware/MotorStatus", 1, &RoboyErrorDetection::handleMotorStatusErrors, this);
 };
 
 void RoboyErrorDetection::handleMotorStatusErrors(const roboy_communication_middleware::MotorStatus::ConstPtr &msg) {
@@ -17,9 +16,22 @@ void RoboyErrorDetection::handleMotorStatusErrors(const roboy_communication_midd
     }
 }
 
-void RoboyErrorDetection::listenForDeadMotor(int motorId, int logLevel) {
+void RoboyErrorDetection::listenForDeadMotor(int motorId, NotificationLevel logLevel) {
     // TODO: check for invalid input
 
-    std::tuple<int,int> motorLogCombination (motorId,logLevel);
-    sub_dead_motors.push_back(motorLogCombination);
+    // check if we are not still listening to motor --> add new entry
+    if (mapSubscribedDeadMotorsToNotificationLevels.find(motorId) == mapSubscribedDeadMotorsToNotificationLevels.end()) {
+        mapSubscribedDeadMotorsToNotificationLevels[motorId] = {logLevel};
+    } else {
+        bool isLogLevelStillInList = (
+                std::find(mapSubscribedDeadMotorsToNotificationLevels[motorId].begin(),
+                          mapSubscribedDeadMotorsToNotificationLevels[motorId].end(),
+                          logLevel
+                ) != mapSubscribedDeadMotorsToNotificationLevels[motorId].end()
+        );
+        if (!isLogLevelStillInList) {
+            mapSubscribedDeadMotorsToNotificationLevels[motorId].push_back(logLevel);
+            ROS_INFO("ROS sends now ");
+        }
+    }
 }

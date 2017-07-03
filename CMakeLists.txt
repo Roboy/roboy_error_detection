@@ -21,6 +21,10 @@ INCLUDE_DIRECTORIES(
 #==============================================================================
 # Application
 #==============================================================================
-add_executable(roboy_error_detection src/main.cpp src/roboyErrorDetection.cpp)
-target_link_libraries(roboy_error_detection ${catkin_LIBRARIES})
-add_dependencies(roboy_error_detection roboy_system_notification_gencpp roboy_communication_middleware_genccp)
+add_library(roboy_error_detection src/roboyErrorDetection.cpp)
+add_dependencies(roboy_error_detection roboy_system_notification_gencpp roboy_communication_middleware_gencpp)
+target_link_libraries(roboy_error_detection ${catkin_LIBRARIES} roboy_system_notification)
+
+add_executable(roboy_error_detection_test src/main.cpp )
+add_dependencies(roboy_error_detection_test roboy_system_notification_gencpp roboy_communication_middleware_gencpp)
+target_link_libraries(roboy_error_detection_test ${catkin_LIBRARIES} roboy_error_detection)
