@@ -1,9 +1,11 @@
 #include "roboy_error_detection/roboyErrorDetection.hpp"
 
 RoboyErrorDetection::RoboyErrorDetection(ros::NodeHandlePtr nh) {
+    ROS_INFO("Calls constructor");
     notifier.setNodeHandler(nh);
 
-    motorSub = nh->subscribe("/roboy/middleware/MotorStatus", 1, &RoboyErrorDetection::handleMotorStatusErrors, this);
+    motorSub = nh->subscribe("/roboy/middleware/MotorStatus", 1000, &RoboyErrorDetection::handleMotorStatusErrors, this);
+    ROS_DEBUG("Subscribed to /roboy/middleware/MotorStatus");
 };
 
 void RoboyErrorDetection::handleMotorStatusErrors(const roboy_communication_middleware::MotorStatus::ConstPtr &msg) {
@@ -19,9 +21,9 @@ void RoboyErrorDetection::listenForMotorHealth(MotorID motorId, NotificationInte
         subscriptionsForMotorHealth[motorId] = {};
     }
 
-    std::tuple<uint16_t> subscriptionData (minPublishIntervalInMs);
+    NotificationData notificationData (minPublishIntervalInMs);
     // TODO: check what happens if subscription still exists (existing error subscription with 2000ms, what happens if another come with 1000ms?)
-    subscriptionsForMotorHealth[motorId][logLevel] = subscriptionData;
+    subscriptionsForMotorHealth[motorId][logLevel] = notificationData;
 }
 
 void RoboyErrorDetection::handleMotorHealthCheck(const roboy_communication_middleware::MotorStatus::ConstPtr &msg) {
@@ -33,9 +35,11 @@ void RoboyErrorDetection::handleMotorHealthCheck(const roboy_communication_middl
     }
     lastMotorHealthCheckTime = ros::Time::now(); // update time of last motor check --> is current now
 
+    ROS_INFO("Received motor health check message");
     // check all subscribed motors if we should send a health message
     for(auto const &motorEntry : subscriptionsForMotorHealth) {
         MotorID motorId = motorEntry.first;
+        ROS_INFO("Found entry with motor ID %d", motorId);
 
         // loop and process all subscriptions for this motor
         for(auto const &motorSubscriptions : motorEntry.second) {
