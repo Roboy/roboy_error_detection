@@ -4,7 +4,8 @@ RoboyErrorDetection::RoboyErrorDetection(ros::NodeHandlePtr nh) {
     ROS_INFO("Calls constructor");
     notifier.setNodeHandler(nh);
 
-    motorSub = nh->subscribe("/roboy/middleware/MotorStatus", 1000, &RoboyErrorDetection::handleMotorStatusErrors, this);
+    motorSub = nh->subscribe("/roboy/middleware/MotorStatus", 1000, &RoboyErrorDetection::handleMotorStatusErrors,
+                             this);
     ROS_DEBUG("Subscribed to /roboy/middleware/MotorStatus");
 };
 
@@ -12,7 +13,8 @@ void RoboyErrorDetection::handleMotorStatusErrors(const roboy_communication_midd
     handleMotorHealthCheck(msg);
 }
 
-void RoboyErrorDetection::listenForMotorHealth(MotorID motorId, NotificationInterval minPublishIntervalInMs, NotificationLevel logLevel) {
+void RoboyErrorDetection::listenForMotorHealth(MotorID motorId, NotificationInterval minPublishIntervalInMs,
+                                               NotificationLevel logLevel) {
     // TODO: check for invalid input
 
     // check if we are not still listening to motor --> add new entry
@@ -21,35 +23,47 @@ void RoboyErrorDetection::listenForMotorHealth(MotorID motorId, NotificationInte
         subscriptionsForMotorHealth[motorId] = {};
     }
 
-    NotificationData notificationData (minPublishIntervalInMs);
+    NotificationData notificationData(minPublishIntervalInMs);
     // TODO: check what happens if subscription still exists (existing error subscription with 2000ms, what happens if another come with 1000ms?)
     subscriptionsForMotorHealth[motorId][logLevel] = notificationData;
 }
 
 void RoboyErrorDetection::handleMotorHealthCheck(const roboy_communication_middleware::MotorStatus::ConstPtr &msg) {
-    // determine time since last health check for given motor
-    float timeSinceLastMotorHealthCheck = 0.0;
-    if (lastMotorHealthCheckTime.isValid()) {
-        timeSinceLastMotorHealthCheck =
-                (ros::Time::now() - lastMotorHealthCheckTime).toSec() * 1000; // time in ms
-    }
-    lastMotorHealthCheckTime = ros::Time::now(); // update time of last motor check --> is current now
-
     ROS_INFO("Received motor health check message");
     // check all subscribed motors if we should send a health message
-    for(auto const &motorEntry : subscriptionsForMotorHealth) {
+    for (auto const &motorEntry : subscriptionsForMotorHealth) {
         MotorID motorId = motorEntry.first;
         ROS_INFO("Found entry with motor ID %d", motorId);
 
+        if (lastMotorHealthCheckTime.find(motorId) == lastMotorHealthCheckTime.end()) {
+            lastMotorHealthCheckTime[motorId] = {};
+        }
+
         // loop and process all subscriptions for this motor
-        for(auto const &motorSubscriptions : motorEntry.second) {
+        for (auto const &motorSubscriptions : motorEntry.second) {
             NotificationLevel lvl = motorSubscriptions.first;
             NotificationData subscriptionData = motorSubscriptions.second;
 
+            if (lastMotorHealthCheckTime[motorId].find(lvl) == lastMotorHealthCheckTime[motorId].end()) {
+                lastMotorHealthCheckTime[motorId][lvl] = ros::Time(0); // set invalid time
+            }
+
+            // determine time since last health check for given motor
+            float timeSinceLastMotorHealthCheck = 0.0;
+            if (lastMotorHealthCheckTime[motorId][lvl].isValid()) {
+                timeSinceLastMotorHealthCheck =
+                        (ros::Time::now() - lastMotorHealthCheckTime[motorId][lvl]).toSec() * 1000; // time in ms
+            }
+
             NotificationInterval minPublishIntervalInMs = std::get<0>(subscriptionData);
-            if (minPublishIntervalInMs == 0 || minPublishIntervalInMs < timeSinceLastMotorHealthCheck) {
+            ROS_INFO("Time since last publishment: %f and required interval %d", timeSinceLastMotorHealthCheck,
+                     minPublishIntervalInMs);
+            if (!lastMotorHealthCheckTime[motorId][lvl].isValid() || minPublishIntervalInMs == 0 ||
+                minPublishIntervalInMs < timeSinceLastMotorHealthCheck) {
                 bool isMotorDead = msg->current[motorId] == 0;
                 publishMessage(lvl, isMotorDead ? MOTOR_DEAD_NOTIFICATION : MOTOR_ALIVE_NOTIFICATION, motorId);
+
+                lastMotorHealthCheckTime[motorId][lvl] = ros::Time::now(); // update time of last motor check --> is current now
             }
         }
     }
@@ -64,24 +78,25 @@ void RoboyErrorDetection::handleMotorHealthCheck(const roboy_communication_middl
      */
 }
 
-void RoboyErrorDetection::publishMessage(NotificationLevel level, NotificationCode notificationCode, uint16_t objectId) {
-    switch(level) {
+void
+RoboyErrorDetection::publishMessage(NotificationLevel level, NotificationCode notificationCode, uint16_t objectId) {
+    switch (level) {
         case DANGER_LEVEL:
-            notifier.sendDangerMessage(notificationCode, objectId);
+            notifier.sendDangerMessage(notificationCode, notificationMessages[notificationCode], objectId);
             break;
         case ERROR_LEVEL:
-            notifier.sendErrorMessage(notificationCode, objectId);
+            notifier.sendErrorMessage(notificationCode, notificationMessages[notificationCode], objectId);
             break;
         case WARNING_LEVEL:
-            notifier.sendWarningMessage(notificationCode, objectId);
+            notifier.sendWarningMessage(notificationCode, notificationMessages[notificationCode], objectId);
             break;
         case INFO_LEVEL:
-            notifier.sendInfoMessage(notificationCode, objectId);
+            notifier.sendInfoMessage(notificationCode, notificationMessages[notificationCode], objectId);
             break;
         case DEBUG_LEVEL:
-            notifier.sendDebugMessage(notificationCode, objectId);
+            notifier.sendDebugMessage(notificationCode, notificationMessages[notificationCode], objectId);
             break;
         default:
-            ROS_WARN("Undefined notification level --> notification could not be sent");
+            notifier.sendWarningMessage(notificationCode, notificationMessages[UNDEFINED_NOTIFICATION], objectId);
     }
 }

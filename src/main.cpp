@@ -1,23 +1,23 @@
 #include "roboy_error_detection/roboyErrorDetection.hpp"
 
-void handleDebugNotification(const roboy_communication_control::SystemNotification::ConstPtr &msg) {
-    ROS_INFO("Received debug with object id %d - related to %d", msg->id, msg->objectId);
+void handleDebugNotification(const roboy_communication_control::DebugNotification::ConstPtr &msg) {
+    ROS_INFO("Received debug message with msg ID %d | code %d | msg %s | object ID %d", msg->id, msg->code, msg->msg.c_str(), msg->objectId);
 }
 
-void handleInfoNotification(const roboy_communication_control::SystemNotification::ConstPtr &msg) {
-    ROS_INFO("Received info with object id %d - related to %d", msg->id, msg->objectId);
+void handleInfoNotification(const roboy_communication_control::InfoNotification::ConstPtr &msg) {
+    ROS_INFO("Received info message with msg ID %d | code %d | msg %s | object ID %d", msg->id, msg->code, msg->msg.c_str(), msg->objectId);
 }
 
-void handleWarningNotification(const roboy_communication_control::SystemNotification::ConstPtr &msg) {
-    ROS_INFO("Received warning with object id %d - related to %d", msg->id, msg->objectId);
+void handleWarningNotification(const roboy_communication_control::WarningNotification::ConstPtr &msg) {
+    ROS_INFO("Received warning message with msg ID %d | code %d | msg %s | object ID %d", msg->id, msg->code, msg->msg.c_str(), msg->objectId);
 }
 
-void handleErrorNotification(const roboy_communication_control::SystemNotification::ConstPtr &msg) {
-    ROS_INFO("Received error with object id %d - related to %d", msg->id, msg->objectId);
+void handleErrorNotification(const roboy_communication_control::ErrorNotification::ConstPtr &msg) {
+    ROS_INFO("Received error message with msg ID %d | code %d | msg %s | object ID %d", msg->id, msg->code, msg->msg.c_str(), msg->objectId);
 }
 
-void handleDangerNotification(const roboy_communication_control::SystemNotification::ConstPtr &msg) {
-    ROS_INFO("Received error with object id %d - related to %d", msg->id, msg->objectId);
+void handleDangerNotification(const roboy_communication_control::DangerNotification::ConstPtr &msg) {
+    ROS_INFO("Received danger message with msg ID %d | code %d | msg %s | object ID %d", msg->id, msg->code, msg->msg.c_str(), msg->objectId);
 }
 
 void sendMotorHealthStateMsg(ros::Publisher publisher, bool isMotorHealthy) {

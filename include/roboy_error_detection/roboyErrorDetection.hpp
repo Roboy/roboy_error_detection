@@ -41,7 +41,7 @@ private:
         return std::find(notificationsList.begin(), notificationsList.end(), logLevel) != notificationsList.end();
     }
 
-    ros::Time lastMotorHealthCheckTime;
+    std::map<MotorID, std::map<NotificationLevel, ros::Time>> lastMotorHealthCheckTime;
 
     void handleMotorHealthCheck(const roboy_communication_middleware::MotorStatus::ConstPtr &msg);
 
