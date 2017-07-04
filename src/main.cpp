@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
     RoboyErrorDetection handler(nh);
 
     int MOTOR_ID = 1;
-    handler.listenForMotorHealth(1);
+    handler.listenForMotorHealth(MOTOR_ID);
 
     while (ros::ok()) {
         ROS_INFO_THROTTLE(5, "Listening for Roboy Errors!");
