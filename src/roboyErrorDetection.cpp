@@ -7,31 +7,77 @@ RoboyErrorDetection::RoboyErrorDetection(ros::NodeHandlePtr nh) {
 };
 
 void RoboyErrorDetection::handleMotorStatusErrors(const roboy_communication_middleware::MotorStatus::ConstPtr &msg) {
-    // TODO: handle motor states and publish on error
-    bool dead = false; // TODO: define if motor is dead: https://github.com/Roboy/myoFPGA/blob/5de1e1751091c34a3da620666ded3e0603e280d3/myoFPGA/src/interface/src/main_window.cpp#L187
-    bool shouldCheckMotorDeadStatus = false; // TODO: check if motor id is in sub_dead_motors
-
-    if (dead && shouldCheckMotorDeadStatus) {
-        // TODO: send message according to the log level
-    }
+    handleMotorHealthCheck(msg);
 }
 
-void RoboyErrorDetection::listenForDeadMotor(int motorId, NotificationLevel logLevel) {
+void RoboyErrorDetection::listenForMotorHealth(MotorID motorId, NotificationInterval minPublishIntervalInMs, NotificationLevel logLevel) {
     // TODO: check for invalid input
 
     // check if we are not still listening to motor --> add new entry
-    if (mapSubscribedDeadMotorsToNotificationLevels.find(motorId) == mapSubscribedDeadMotorsToNotificationLevels.end()) {
-        mapSubscribedDeadMotorsToNotificationLevels[motorId] = {logLevel};
-    } else {
-        bool isLogLevelStillInList = (
-                std::find(mapSubscribedDeadMotorsToNotificationLevels[motorId].begin(),
-                          mapSubscribedDeadMotorsToNotificationLevels[motorId].end(),
-                          logLevel
-                ) != mapSubscribedDeadMotorsToNotificationLevels[motorId].end()
-        );
-        if (!isLogLevelStillInList) {
-            mapSubscribedDeadMotorsToNotificationLevels[motorId].push_back(logLevel);
-            ROS_INFO("ROS sends now ");
+    if (subscriptionsForMotorHealth.find(motorId) ==
+        subscriptionsForMotorHealth.end()) {
+        subscriptionsForMotorHealth[motorId] = {};
+    }
+
+    std::tuple<uint16_t> subscriptionData (minPublishIntervalInMs);
+    // TODO: check what happens if subscription still exists (existing error subscription with 2000ms, what happens if another come with 1000ms?)
+    subscriptionsForMotorHealth[motorId][logLevel] = subscriptionData;
+}
+
+void RoboyErrorDetection::handleMotorHealthCheck(const roboy_communication_middleware::MotorStatus::ConstPtr &msg) {
+    // determine time since last health check for given motor
+    float timeSinceLastMotorHealthCheck = 0.0;
+    if (lastMotorHealthCheckTime.isValid()) {
+        timeSinceLastMotorHealthCheck =
+                (ros::Time::now() - lastMotorHealthCheckTime).toSec() * 1000; // time in ms
+    }
+    lastMotorHealthCheckTime = ros::Time::now(); // update time of last motor check --> is current now
+
+    // check all subscribed motors if we should send a health message
+    for(auto const &motorEntry : subscriptionsForMotorHealth) {
+        MotorID motorId = motorEntry.first;
+
+        // loop and process all subscriptions for this motor
+        for(auto const &motorSubscriptions : motorEntry.second) {
+            NotificationLevel lvl = motorSubscriptions.first;
+            NotificationData subscriptionData = motorSubscriptions.second;
+
+            NotificationInterval minPublishIntervalInMs = std::get<0>(subscriptionData);
+            if (minPublishIntervalInMs == 0 || minPublishIntervalInMs < timeSinceLastMotorHealthCheck) {
+                bool isMotorDead = msg->current[motorId] == 0;
+                publishMessage(lvl, isMotorDead ? MOTOR_DEAD_NOTIFICATION : MOTOR_ALIVE_NOTIFICATION, motorId);
+            }
         }
+    }
+    /**
+     * notificationsList = mapSubscribedDeadMotorsToNotificationLevels[motorId];
+    if (!isLogLevelInList(notificationsList, logLevel)) {
+    subscriptionsForMotorHealth[motorId].push_back(logLevel);
+    ROS_INFO("ROS sends now a notification for motor %d over the topic %s", motorId, topicAddresses[logLevel]);
+    } else {
+    ROS_WARNING("Notification for motor %d still exists --> ignored", motorId);
+    }
+     */
+}
+
+void RoboyErrorDetection::publishMessage(NotificationLevel level, NotificationCode notificationCode, uint16_t objectId) {
+    switch(level) {
+        case DANGER_LEVEL:
+            notifier.sendDangerMessage(notificationCode, objectId);
+            break;
+        case ERROR_LEVEL:
+            notifier.sendErrorMessage(notificationCode, objectId);
+            break;
+        case WARNING_LEVEL:
+            notifier.sendWarningMessage(notificationCode, objectId);
+            break;
+        case INFO_LEVEL:
+            notifier.sendInfoMessage(notificationCode, objectId);
+            break;
+        case DEBUG_LEVEL:
+            notifier.sendDebugMessage(notificationCode, objectId);
+            break;
+        default:
+            ROS_WARN("Undefined notification level --> notification could not be sent");
     }
 }
