@@ -1,6 +1,6 @@
 # Roboy error detection
 
-# Roboy System Notifications Module
+# Roboy Error Detection Module
 
 This module helps you to send system messages in a very easy way.
 
