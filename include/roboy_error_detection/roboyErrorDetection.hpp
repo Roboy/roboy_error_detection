@@ -2,6 +2,7 @@
 
 #include <ros/ros.h>
 #include <roboy_communication_middleware/MotorStatus.h>
+#include <roboy_communication_middleware/JointStatus.h>
 #include <roboy_system_notification/roboySystemNotification.hpp>
 #include <map>
 #include <list>
@@ -31,10 +32,11 @@ public:
     listenForMotorHealth(MotorID motorId, NotificationInterval minPublishIntervalInMs = 5000, NotificationLevel logLevel = WARNING_LEVEL);
 
     void handleMotorStatusErrors(const roboy_communication_middleware::MotorStatus::ConstPtr &msg);
+    void handleJointStatusErrors(const roboy_communication_middleware::JointStatus::ConstPtr &msg);
 
 private:
     std::map<MotorID, NotificationDataMap> subscriptionsForMotorHealth; // a motor id maps on a list of notifications and their extra information
-    ros::Subscriber motorSub;
+    ros::Subscriber motorSub, jointSub;
     RoboySystemNotification notifier;
 
     static bool isLogLevelInList(std::list <NotificationLevel> notificationsList, NotificationLevel logLevel) {
@@ -44,6 +46,9 @@ private:
     std::map<MotorID, std::map<NotificationLevel, ros::Time>> lastMotorHealthCheckTime;
 
     void handleMotorHealthCheck(const roboy_communication_middleware::MotorStatus::ConstPtr &msg);
+
+    void subscribeToMotorStatus(ros::NodeHandlePtr nh);
+    void subscribeToJointStatus(ros::NodeHandlePtr nh);
 
     void publishMessage(NotificationLevel level, NotificationCode notificationCode, uint16_t objectId);
 };

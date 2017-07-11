@@ -1,17 +1,12 @@
 #include "roboy_error_detection/roboyErrorDetection.hpp"
 
 RoboyErrorDetection::RoboyErrorDetection(ros::NodeHandlePtr nh) {
-    ROS_INFO("Calls constructor");
+    ROS_DEBUG("Calls constructor");
     notifier.setNodeHandler(nh);
 
-    motorSub = nh->subscribe("/roboy/middleware/MotorStatus", 1000, &RoboyErrorDetection::handleMotorStatusErrors,
-                             this);
-    ROS_DEBUG("Subscribed to /roboy/middleware/MotorStatus");
+    this->subscribeToMotorStatus(nh);
+    this->subscribeToJointStatus(nh);
 };
-
-void RoboyErrorDetection::handleMotorStatusErrors(const roboy_communication_middleware::MotorStatus::ConstPtr &msg) {
-    handleMotorHealthCheck(msg);
-}
 
 void RoboyErrorDetection::listenForMotorHealth(MotorID motorId, NotificationInterval minPublishIntervalInMs,
                                                NotificationLevel logLevel) {
@@ -28,12 +23,31 @@ void RoboyErrorDetection::listenForMotorHealth(MotorID motorId, NotificationInte
     subscriptionsForMotorHealth[motorId][logLevel] = notificationData;
 }
 
+void RoboyErrorDetection::handleMotorStatusErrors(const roboy_communication_middleware::MotorStatus::ConstPtr &msg) {
+    handleMotorHealthCheck(msg);
+}
+
+void RoboyErrorDetection::handleJointStatusErrors(const roboy_communication_middleware::JointStatus::ConstPtr &msg) {
+}
+
+void RoboyErrorDetection::subscribeToMotorStatus(ros::NodeHandlePtr nh) {
+    motorSub = nh->subscribe("/roboy/middleware/MotorStatus", 1000, &RoboyErrorDetection::handleJointStatusErrors,
+                             this);
+    ROS_DEBUG("Subscribed to /roboy/middleware/MotorStatus");
+}
+
+void RoboyErrorDetection::subscribeToJointStatus(ros::NodeHandlePtr nh) {
+    jointSub = nh->subscribe("/roboy/middleware/JointStatus", 1000, &RoboyErrorDetection::handleJointStatusErrors,
+                             this);
+    ROS_DEBUG("Subscribed to /roboy/middleware/JointStatus");
+}
+
 void RoboyErrorDetection::handleMotorHealthCheck(const roboy_communication_middleware::MotorStatus::ConstPtr &msg) {
-    ROS_INFO("Received motor health check message");
+    ROS_DEBUG("Received motor health check message");
     // check all subscribed motors if we should send a health message
     for (auto const &motorEntry : subscriptionsForMotorHealth) {
         MotorID motorId = motorEntry.first;
-        ROS_INFO("Found entry with motor ID %d", motorId);
+        ROS_DEBUG("Found entry with motor ID %d", motorId);
 
         if (lastMotorHealthCheckTime.find(motorId) == lastMotorHealthCheckTime.end()) {
             lastMotorHealthCheckTime[motorId] = {};
@@ -56,7 +70,7 @@ void RoboyErrorDetection::handleMotorHealthCheck(const roboy_communication_middl
             }
 
             NotificationInterval minPublishIntervalInMs = std::get<0>(subscriptionData);
-            ROS_INFO("Time since last publishment: %f and required interval %d", timeSinceLastMotorHealthCheck,
+            ROS_DEBUG("Time since last publishment: %f and required interval %d", timeSinceLastMotorHealthCheck,
                      minPublishIntervalInMs);
             if (!lastMotorHealthCheckTime[motorId][lvl].isValid() || minPublishIntervalInMs == 0 ||
                 minPublishIntervalInMs < timeSinceLastMotorHealthCheck) {
