@@ -17,3 +17,13 @@ std::map<NotificationCode, string> notificationMessages = {
         {JOINT_TOO_FAR_NOTIFICATION, "Joint magnet too far away"},
         {JOINT_TOO_CLOSE_NOTIFICATION, "Joint magnet too close"}
 };
+
+std::map<NotificationCode, string> notificationExtraMessages = {
+        {UNDEFINED_NOTIFICATION, "undefined"},
+        {MOTOR_DEAD_NOTIFICATION, "Please check all calbles"},
+        {MOTOR_ALIVE_NOTIFICATION, "..."},
+        {JOINT_INVALID_REL_ANGLE_NOTIFICATION, "..."},
+        {MOTOR_IS_RUNNING_BUT_TENDENT_NOT_NOTIFICATION, "..."},
+        {JOINT_TOO_FAR_NOTIFICATION, "..."},
+        {JOINT_TOO_CLOSE_NOTIFICATION, "..."}
+};

@@ -294,21 +294,21 @@ void
 RoboyErrorDetection::publishMessage(NotificationLevel level, NotificationCode notificationCode, uint16_t objectId) {
     switch (level) {
         case DANGER_LEVEL:
-            notifier.sendDangerMessage(notificationCode, notificationMessages[notificationCode], objectId);
+            notifier.sendDangerMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId));
             break;
         case ERROR_LEVEL:
-            notifier.sendErrorMessage(notificationCode, notificationMessages[notificationCode], objectId);
+            notifier.sendErrorMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId));
             break;
         case WARNING_LEVEL:
-            notifier.sendWarningMessage(notificationCode, notificationMessages[notificationCode], objectId);
+            notifier.sendWarningMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId));
             break;
         case INFO_LEVEL:
-            notifier.sendInfoMessage(notificationCode, notificationMessages[notificationCode], objectId);
+            notifier.sendInfoMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId));
             break;
         case DEBUG_LEVEL:
-            notifier.sendDebugMessage(notificationCode, notificationMessages[notificationCode], objectId);
+            notifier.sendDebugMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId));
             break;
         default:
-            notifier.sendWarningMessage(notificationCode, notificationMessages[UNDEFINED_NOTIFICATION], objectId);
+            notifier.sendWarningMessage(notificationCode, notificationMessages[UNDEFINED_NOTIFICATION], std::to_string(objectId));
     }
 }
