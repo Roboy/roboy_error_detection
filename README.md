@@ -247,4 +247,4 @@ int main(int argc, char* argv[])
 }
 ```
 
-> Example taken from the [main.cpp file](./src/main.cpp)
+> Example taken from the [main.cpp file](src/main/main_motor_health_check.cpp)
