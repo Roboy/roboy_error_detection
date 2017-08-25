@@ -9,30 +9,30 @@ RoboyErrorDetection::RoboyErrorDetection(ros::NodeHandlePtr nh) {
     this->subscribeToJointStatus(nh);
 };
 
-void RoboyErrorDetection::listenForMotorHealth(ObjectID motorId, NotificationInterval minPublishIntervalInMs,
+void RoboyErrorDetection::listenForMotorHealth(ObjectID motorId, NotificationInterval durationOfValidity,
                                                NotificationLevel logLevel) {
     // TODO: check for invalid input
     // TODO: check what happens if subscription still exists (existing error subscription with 2000ms, what happens if another come with 1000ms?)
 
-    MinimalNotificationData notificationData(minPublishIntervalInMs);
+    MinimalNotificationData notificationData(durationOfValidity);
     addSubscription(motorId, MOTOR_HEALTH_SUBSCRIPTION, notificationData, logLevel);
 }
 
-void RoboyErrorDetection::listenIfMotorIsDead(ObjectID motorId, NotificationInterval minPublishIntervalInMs,
+void RoboyErrorDetection::listenIfMotorIsDead(ObjectID motorId, NotificationInterval durationOfValidity,
                                               NotificationLevel logLevel) {
     // TODO: check for invalid input
     // TODO: check what happens if subscription still exists (existing error subscription with 2000ms, what happens if another come with 1000ms?)
 
-    MinimalNotificationData notificationData(minPublishIntervalInMs);
+    MinimalNotificationData notificationData(durationOfValidity);
     addSubscription(motorId, MOTOR_IS_DEAD_SUBSCRIPTION, notificationData, logLevel);
 }
 
-void RoboyErrorDetection::listenIfMotorIsAlive(ObjectID motorId, NotificationInterval minPublishIntervalInMs,
+void RoboyErrorDetection::listenIfMotorIsAlive(ObjectID motorId, NotificationInterval durationOfValidity,
                                                NotificationLevel logLevel) {
     // TODO: check for invalid input
     // TODO: check what happens if subscription still exists (existing error subscription with 2000ms, what happens if another come with 1000ms?)
 
-    MinimalNotificationData notificationData(minPublishIntervalInMs);
+    MinimalNotificationData notificationData(durationOfValidity);
     addSubscription(motorId, MOTOR_IS_ALIVE_SUBSCRIPTION, notificationData, logLevel);
 }
 
@@ -45,17 +45,17 @@ void RoboyErrorDetection::listenForInvalidRelativeJointAngle(ObjectID jointId, a
     addSubscription(jointId, JOINT_INVALID_REL_ANGLE_SUBSCRIPTION, notificationData, logLevel);
 }
 
-void RoboyErrorDetection::listenForJointMagnetStatus(ObjectID jointId, NotificationInterval minPublishIntervalInMs, NotificationLevel logLevel) {
+void RoboyErrorDetection::listenForJointMagnetStatus(ObjectID jointId, NotificationInterval durationOfValidity, NotificationLevel logLevel) {
     // TODO: check for invalid input
 
-    MinimalNotificationData notificationData(minPublishIntervalInMs);
+    MinimalNotificationData notificationData(durationOfValidity);
     addSubscription(jointId, JOINT_MAGNET_CHECK_SUBSCRIPTION, notificationData, logLevel);
 }
 
-void RoboyErrorDetection::listenForMotorTendentInconsistence(ObjectID jointId, NotificationInterval minPublishIntervalInMs, tacho minTacho, tacho maxTacho, NotificationLevel logLevel) {
+void RoboyErrorDetection::listenForMotorTendentInconsistence(ObjectID jointId, NotificationInterval durationOfValidity, tacho minTacho, tacho maxTacho, NotificationLevel logLevel) {
     // TODO: check for invalid input
 
-    MotorTendentInconstenceSubscriptionData notificationData(minPublishIntervalInMs, minTacho, maxTacho);
+    MotorTendentInconstenceSubscriptionData notificationData(durationOfValidity, minTacho, maxTacho);
     addSubscription(jointId, MOTOR_IS_RUNNING_BUT_TENDENT_NOT_SUBSCRIPTION, notificationData, logLevel);
 }
 
@@ -150,7 +150,7 @@ RoboyErrorDetection::handleJointInvalidRelAngleCheck(const roboy_communication_m
 
             // check if angle is a valid value
             if (minAngle > currentJointValue || maxAngle < currentJointValue) {
-                publishMessage(lvl, JOINT_INVALID_REL_ANGLE_NOTIFICATION, jointId);
+                publishMessage(lvl, JOINT_INVALID_REL_ANGLE_NOTIFICATION, jointId, getRealDurationOfValidity(durationOfValidity));
             }
         }
     }
@@ -185,13 +185,13 @@ RoboyErrorDetection::handleMotorIsRunningButTendentNot(
             }
 
             tacho currentTacho = msg->tacho[jointId];
-            NotificationInterval minPublishIntervalInMs = std::get<0>(subscriptionData);
+            NotificationInterval durationOfValidity = std::get<0>(subscriptionData);
             tacho minTacho = std::get<1>(subscriptionData), maxTacho = std::get<2>(subscriptionData);
 
-            if (!lastMotorTendentInconsistentCheck[jointId][lvl].isValid() || minPublishIntervalInMs == 0 ||
-                minPublishIntervalInMs < timeSinceLastMotorTendentInconsistentCheck) {
+            if (!lastMotorTendentInconsistentCheck[jointId][lvl].isValid() || durationOfValidity == 0 ||
+                durationOfValidity < timeSinceLastMotorTendentInconsistentCheck) {
                 if (minTacho > currentTacho || maxTacho < currentTacho) {
-                    publishMessage(lvl, MOTOR_IS_RUNNING_BUT_TENDENT_NOT_NOTIFICATION, jointId);
+                    publishMessage(lvl, MOTOR_IS_RUNNING_BUT_TENDENT_NOT_NOTIFICATION, jointId, getRealDurationOfValidity(durationOfValidity));
                     lastMotorTendentInconsistentCheck[jointId][lvl] = ros::Time::now();
                 }
             }
@@ -225,14 +225,14 @@ void RoboyErrorDetection::handleJointMagnetErrors(const roboy_communication_midd
             }
 
             tacho currentTacho = msg->tacho[jointId];
-            NotificationInterval minPublishIntervalInMs = std::get<0>(subscriptionData);
+            NotificationInterval durationOfValidity = std::get<0>(subscriptionData);
 
-            if (!lastJointMagnetCheck[jointId][lvl].isValid() || minPublishIntervalInMs == 0 ||
-                minPublishIntervalInMs < timeSinceLastJointMagnetCheck) {
+            if (!lastJointMagnetCheck[jointId][lvl].isValid() || durationOfValidity == 0 ||
+                durationOfValidity < timeSinceLastJointMagnetCheck) {
                 if (msg->tooFar[jointId]) {
-                    publishMessage(lvl, JOINT_TOO_FAR_NOTIFICATION, jointId);
+                    publishMessage(lvl, JOINT_TOO_FAR_NOTIFICATION, jointId, getRealDurationOfValidity(durationOfValidity));
                 } else if (msg->tooClose[jointId]) {
-                    publishMessage(lvl, JOINT_TOO_CLOSE_NOTIFICATION, jointId);
+                    publishMessage(lvl, JOINT_TOO_CLOSE_NOTIFICATION, jointId, getRealDurationOfValidity(durationOfValidity));
                 }
             }
             lastJointMagnetCheck[jointId][lvl] = ros::Time::now();
@@ -271,16 +271,16 @@ void RoboyErrorDetection::handleMotorStatusAfterInterval(
                         (ros::Time::now() - lastMotorHealthCheckTime[motorId][lvl]).toSec() * 1000; // time in ms
             }
 
-            NotificationInterval minPublishIntervalInMs = std::get<0>(subscriptionData);
+            NotificationInterval durationOfValidity = std::get<0>(subscriptionData);
             ROS_DEBUG("Time since last publishment: %f and required interval %d", timeSinceLastMotorHealthCheck,
-                      minPublishIntervalInMs);
-            if (!lastMotorHealthCheckTime[motorId][lvl].isValid() || minPublishIntervalInMs == 0 ||
-                minPublishIntervalInMs < timeSinceLastMotorHealthCheck) {
+                      durationOfValidity);
+            if (!lastMotorHealthCheckTime[motorId][lvl].isValid() || durationOfValidity == 0 ||
+                durationOfValidity < timeSinceLastMotorHealthCheck) {
                 NotificationCode notificationCode = challengeFunc(msg, motorId);
 
                 // do we really want to send it?
                 if (notificationCode != UNDEFINED_NOTIFICATION) {
-                    publishMessage(lvl, notificationCode, motorId);
+                    publishMessage(lvl, notificationCode, motorId, getRealDurationOfValidity(durationOfValidity));
 
                     lastMotorHealthCheckTime[motorId][lvl] = ros::Time::now(); // update time of last motor check --> is current now
                 }
@@ -291,24 +291,24 @@ void RoboyErrorDetection::handleMotorStatusAfterInterval(
 }
 
 void
-RoboyErrorDetection::publishMessage(NotificationLevel level, NotificationCode notificationCode, uint16_t objectId) {
+RoboyErrorDetection::publishMessage(NotificationLevel level, NotificationCode notificationCode, uint16_t objectId, uint32 durationOfValidity) {
     switch (level) {
         case DANGER_LEVEL:
-            notifier.sendDangerMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId));
+            notifier.sendDangerMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId), durationOfValidity);
             break;
         case ERROR_LEVEL:
-            notifier.sendErrorMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId));
+            notifier.sendErrorMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId), durationOfValidity);
             break;
         case WARNING_LEVEL:
-            notifier.sendWarningMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId));
+            notifier.sendWarningMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId), durationOfValidity);
             break;
         case INFO_LEVEL:
-            notifier.sendInfoMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId));
+            notifier.sendInfoMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId), durationOfValidity);
             break;
         case DEBUG_LEVEL:
-            notifier.sendDebugMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId));
+            notifier.sendDebugMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId), durationOfValidity);
             break;
         default:
-            notifier.sendWarningMessage(notificationCode, notificationMessages[UNDEFINED_NOTIFICATION], std::to_string(objectId));
+            notifier.sendWarningMessage(notificationCode, notificationMessages[UNDEFINED_NOTIFICATION], std::to_string(objectId), durationOfValidity);
     }
 }

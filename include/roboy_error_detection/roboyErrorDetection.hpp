@@ -36,33 +36,33 @@ public:
      * Listen if the motor with the given id is health
      * ROS topic.
      * @param motorId id of the motor, which should be observed
-     * @param minPublishIntervalInMs interval, which defines the MIN sleep time until the next message will be published. Set 0 to disable waiting a minimum time.
+     * @param durationOfValidity interval, which defines the MIN sleep time in ms until the next message will be published. Set 0 to disable waiting a minimum time.
      * @param logLevel message level of the published message
      */
     void
-    listenForMotorHealth(ObjectID motorId, NotificationInterval minPublishIntervalInMs = 5000,
+    listenForMotorHealth(ObjectID motorId, NotificationInterval durationOfValidity = 5000,
                          NotificationLevel logLevel = WARNING_LEVEL);
 
     /**
      * Listen if the motor with the given id is dead. If the defined motor is really dead, a notification will be sent over
      * ROS topic.
      * @param motorId id of the motor, which should be observed
-     * @param minPublishIntervalInMs interval, which defines the MIN sleep time until the next message will be published. Set 0 to disable waiting a minimum time.
+     * @param durationOfValidity interval, which defines the MIN sleep time in ms until the next message will be published. Set 0 to disable waiting a minimum time.
      * @param logLevel message level of the published message
      */
     void
-    listenIfMotorIsDead(ObjectID motorId, NotificationInterval minPublishIntervalInMs = 5000,
+    listenIfMotorIsDead(ObjectID motorId, NotificationInterval durationOfValidity = 5000,
                         NotificationLevel logLevel = WARNING_LEVEL);
 
     /**
      * Listen if the motor with the given id is alive. If the defined motor is alive, a notification will be sent over
      * ROS topic.
      * @param motorId id of the motor, which should be observed
-     * @param minPublishIntervalInMs interval, which defines the MIN sleep time until the next message will be published. Set 0 to disable waiting a minimum time.
+     * @param durationOfValidity interval, which defines the MIN sleep time in ms until the next message will be published. Set 0 to disable waiting a minimum time.
      * @param logLevel message level of the published message
      */
     void
-    listenIfMotorIsAlive(ObjectID motorId, NotificationInterval minPublishIntervalInMs = 10000,
+    listenIfMotorIsAlive(ObjectID motorId, NotificationInterval durationOfValidity = 10000,
                          NotificationLevel logLevel = INFO_LEVEL);
 
     /**
@@ -83,26 +83,27 @@ public:
      * @param jointId id of the joint, which should be observed
      * @param minAngle minimum relative angle
      * @param maxAngle maximum relative angle
-     * @param minPublishIntervalInMs interval, which defines the MIN sleep time until the next message will be published. Set 0 to disable waiting a minimum time.
+     * @param durationOfValidity interval, which defines the MIN sleep time in ms until the next message will be published. Set 0 to disable waiting a minimum time.
      * @param logLevel message level of the published message
      */
     void
     listenForMotorTendentInconsistence(ObjectID jointId, tacho minTacho, tacho maxTacho,
-                                       NotificationInterval minPublishIntervalInMs, NotificationLevel logLevel = WARNING_LEVEL);
+                                       NotificationInterval durationOfValidity, NotificationLevel logLevel = WARNING_LEVEL);
 
     /**
      * Listen if a specific joint throws the error: too close or too far. If this is the case, a message is published over ROS topic.
      * @param jointId id of the joint, which should be observed
-     * @param minPublishIntervalInMs interval, which defines the MIN sleep time until the next message will be published. Set 0 to disable waiting a minimum time.
+     * @param durationOfValidity interval, which defines the MIN sleep time in ms until the next message will be published. Set 0 to disable waiting a minimum time.
      * @param logLevel message level of the published message
      */
-    void listenForJointMagnetStatus(ObjectID jointId, NotificationInterval minPublishIntervalInMs = 2000, NotificationLevel logLevel = WARNING_LEVEL);
+    void listenForJointMagnetStatus(ObjectID jointId, NotificationInterval durationOfValidity = 2000, NotificationLevel logLevel = WARNING_LEVEL);
 
     void handleMotorStatusErrors(const roboy_communication_middleware::MotorStatus::ConstPtr &msg);
 
     void handleJointStatusErrors(const roboy_communication_middleware::JointStatus::ConstPtr &msg);
 
 private:
+    uint32_t MIN_DURATION_OF_VALIDITY = 50;
     enum SubscriptionType {
         UNKNOWN_SUBSCRIPTION = 0,
         MOTOR_HEALTH_SUBSCRIPTION,
@@ -145,4 +146,8 @@ private:
                                                         SubscriptionType subscriptionType,
                                                         MotorChallengeFunc challengeFunc
     );
+
+    uint32 getRealDurationOfValidity(uint32_t durationOfValidity) {
+        return durationOfValidity < 50 ? durationOfValidity : MIN_DURATION_OF_VALIDITY;
+    }
 };
