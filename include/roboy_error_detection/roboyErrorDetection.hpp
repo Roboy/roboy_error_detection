@@ -136,7 +136,7 @@ private:
     void subscribeToMotorStatus(ros::NodeHandlePtr nh);
     void subscribeToJointStatus(ros::NodeHandlePtr nh);
 
-    void publishMessage(NotificationLevel level, NotificationCode notificationCode, uint16_t objectId);
+    void publishMessage(NotificationLevel level, NotificationCode notificationCode, uint16_t objectId, uint32_t durationOfValidity);
 
     void addSubscription(ObjectID objectId, SubscriptionType subscriptionType, NotificationData notificationData,
                          NotificationLevel notificationLevel);
@@ -147,7 +147,7 @@ private:
                                                         MotorChallengeFunc challengeFunc
     );
 
-    uint32 getRealDurationOfValidity(uint32_t durationOfValidity) {
+    uint32_t getRealDurationOfValidity(uint32_t durationOfValidity) {
         return durationOfValidity < 50 ? durationOfValidity : MIN_DURATION_OF_VALIDITY;
     }
 };

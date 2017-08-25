@@ -150,7 +150,7 @@ RoboyErrorDetection::handleJointInvalidRelAngleCheck(const roboy_communication_m
 
             // check if angle is a valid value
             if (minAngle > currentJointValue || maxAngle < currentJointValue) {
-                publishMessage(lvl, JOINT_INVALID_REL_ANGLE_NOTIFICATION, jointId, getRealDurationOfValidity(durationOfValidity));
+                publishMessage(lvl, JOINT_INVALID_REL_ANGLE_NOTIFICATION, jointId, getRealDurationOfValidity(0));
             }
         }
     }
@@ -291,24 +291,24 @@ void RoboyErrorDetection::handleMotorStatusAfterInterval(
 }
 
 void
-RoboyErrorDetection::publishMessage(NotificationLevel level, NotificationCode notificationCode, uint16_t objectId, uint32 durationOfValidity) {
+RoboyErrorDetection::publishMessage(NotificationLevel level, NotificationCode notificationCode, uint16_t objectId, uint32_t durationOfValidity) {
     switch (level) {
         case DANGER_LEVEL:
-            notifier.sendDangerMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId), durationOfValidity);
+            notifier.sendDangerMessage(notificationCode, notificationMessages[notificationCode], notificationExtraMessages[notificationCode], std::to_string(objectId), durationOfValidity);
             break;
         case ERROR_LEVEL:
-            notifier.sendErrorMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId), durationOfValidity);
+            notifier.sendErrorMessage(notificationCode, notificationMessages[notificationCode], notificationExtraMessages[notificationCode], std::to_string(objectId), durationOfValidity);
             break;
         case WARNING_LEVEL:
-            notifier.sendWarningMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId), durationOfValidity);
+            notifier.sendWarningMessage(notificationCode, notificationMessages[notificationCode], notificationExtraMessages[notificationCode], std::to_string(objectId), durationOfValidity);
             break;
         case INFO_LEVEL:
-            notifier.sendInfoMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId), durationOfValidity);
+            notifier.sendInfoMessage(notificationCode, notificationMessages[notificationCode], notificationExtraMessages[notificationCode], std::to_string(objectId), durationOfValidity);
             break;
         case DEBUG_LEVEL:
-            notifier.sendDebugMessage(notificationCode, notificationMessages[notificationCode], std::to_string(objectId), durationOfValidity);
+            notifier.sendDebugMessage(notificationCode, notificationMessages[notificationCode], notificationExtraMessages[notificationCode], std::to_string(objectId), durationOfValidity);
             break;
         default:
-            notifier.sendWarningMessage(notificationCode, notificationMessages[UNDEFINED_NOTIFICATION], std::to_string(objectId), durationOfValidity);
+            notifier.sendWarningMessage(notificationCode, notificationMessages[UNDEFINED_NOTIFICATION], notificationExtraMessages[notificationCode], std::to_string(objectId), durationOfValidity);
     }
 }
