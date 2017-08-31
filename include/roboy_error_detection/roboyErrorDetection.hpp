@@ -20,8 +20,8 @@ typedef uint16_t tacho;
 typedef uint16_t NotificationInterval;
 typedef tuple <NotificationInterval> MinimalNotificationData;
 typedef tuple <angle, angle> JointAngleIntervalSubscriptionData;
-typedef tuple <NotificationInterval, tacho, tacho> MotorTendentInconstenceSubscriptionData;
-typedef boost::variant <MinimalNotificationData, JointAngleIntervalSubscriptionData, MotorTendentInconstenceSubscriptionData> NotificationData;
+typedef tuple <ObjectID, NotificationInterval, tacho, tacho> MotorTendentInconsistenceNotificationData;
+typedef boost::variant <MinimalNotificationData, MotorTendentInconsistenceNotificationData, JointAngleIntervalSubscriptionData> NotificationData;
 typedef std::map <NotificationLevel, NotificationData> NotificationDataMap;
 typedef std::map <ObjectID, NotificationDataMap> ObjectToNotificationDataMap;
 
@@ -78,8 +78,8 @@ public:
                                        NotificationLevel logLevel = WARNING_LEVEL);
 
     /**
-     * Listen if a relative angle of a specific joint is invalid. Invalid means in this case that the angle is not in the specified interval
-     * [minAngle, maxAngle]. If this is the case, a message is published over ROS topic.
+     * Listen if a motor is running
+     * @param motorId id of the motor, which should be observed
      * @param jointId id of the joint, which should be observed
      * @param minAngle minimum relative angle
      * @param maxAngle maximum relative angle
@@ -87,8 +87,8 @@ public:
      * @param logLevel message level of the published message
      */
     void
-    listenForMotorTendentInconsistence(ObjectID jointId, tacho minTacho, tacho maxTacho,
-                                       NotificationInterval durationOfValidity, NotificationLevel logLevel = WARNING_LEVEL);
+    listenForMotorTendentInconsistence(ObjectID motorId, ObjectID jointId, tacho minTacho, tacho maxTacho,
+                                       NotificationInterval durationOfValidity = 2000, NotificationLevel logLevel = WARNING_LEVEL);
 
     /**
      * Listen if a specific joint throws the error: too close or too far. If this is the case, a message is published over ROS topic.
@@ -114,6 +114,10 @@ private:
         JOINT_MAGNET_CHECK_SUBSCRIPTION
     };
     std::map <SubscriptionType, ObjectToNotificationDataMap> subscriptions;
+    bool receivedMotorStatus = false;
+    roboy_communication_middleware::MotorStatus latestMotorStatus;
+    bool receivedJointStatus = false;
+    roboy_communication_middleware::JointStatus latestJointStatus;
 
     ros::Subscriber motorSub, jointSub;
     RoboySystemNotification notifier;

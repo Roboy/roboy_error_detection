@@ -1,0 +1,7 @@
+.idea
+cmake-build-debug
+docker-compose.yml
+Dockerfile
+.gitignore
+.dockerignore
+docs

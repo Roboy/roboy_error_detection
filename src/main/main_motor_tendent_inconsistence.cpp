@@ -12,30 +12,51 @@ int main(int argc, char *argv[]) {
     ros::NodeHandlePtr nh = ros::NodeHandlePtr(new ros::NodeHandle);
     ros::Publisher joint_publisher = nh->advertise<roboy_communication_middleware::JointStatus>(
             "/roboy/middleware/JointStatus", 1000);
+    ros::Publisher motor_publisher = nh->advertise<roboy_communication_middleware::MotorStatus>(
+            "/roboy/middleware/MotorStatus", 1000);
     RoboyErrorDetection handler(nh);
 
-    // setup for listening to joint1 health
-    int JOINT_ID = 0;
-    handler.listenForJointMagnetStatus(JOINT_ID);
+    ObjectID motorId = 0;
+    ObjectID jointId = 0;
+    tacho minTacho = 0;
+    tacho maxTacho = 1023;
+    handler.listenForMotorTendentInconsistence(motorId, jointId, minTacho, maxTacho);
 
     // listening to warning topic to get notified on a warning
     initSystemNotificationSubscriber(nh);
 
-    while (joint_publisher.getNumSubscribers() == 0) {
+    while (motor_publisher.getNumSubscribers() == 0 || joint_publisher.getNumSubscribers() == 0) {
         ROS_INFO("Sleep one second until publisher is setup");
         usleep(1000 * 1000);
     }
 
     int counter = 0;
+    int tacho;
+    int min = 1;
+    int max = 3;
     while (ros::ok()) {
         bool randomTooCloseParameter = rand() % 1 == 0;
         bool randomTooFarParameter = rand() % 1 == 0;
         ROS_INFO("Create too far angle parameter: %d and %d", randomTooCloseParameter, randomTooFarParameter);
-        sendJointAngle(joint_publisher, 0, 0, 0, 0, randomTooFarParameter, randomTooCloseParameter);
 
-        ROS_INFO_THROTTLE(5, "Listening for Roboy Errors!");
+        int randomCommandIndex = min + (rand() % static_cast<int>(max - min + 1));
+        if (randomCommandIndex == 1) {
+            ROS_INFO("Motor is not running -> should not fire");
+            sendVelocityStateMsg(motor_publisher, 0);
+            tacho = 10;
+        } else if (randomCommandIndex == 2) {
+            ROS_INFO("Motor is running and joint tacho = 0 --> should not fire");
+            sendVelocityStateMsg(motor_publisher, 10);
+            tacho = 0;
+        } else {
+            ROS_INFO("Motor is running and joint tacho > 0");
+            sendVelocityStateMsg(motor_publisher, 10);
+            tacho = 10;
+        }
+        sendJointAngle(joint_publisher, 0, 0, tacho, 0, false, false);
+
         ros::spinOnce();
-        ros::Duration(2).sleep();
+        ros::Duration(3).sleep();
         counter++;
     }
 

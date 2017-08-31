@@ -1,0 +1,11 @@
+version: '2'
+services:
+  ros_roboy_error_detection:
+    image: roboy_error_detection
+    build: .
+    ports:
+      - "3022:22"
+      - "7777:7777"
+      - "9999:9999"
+    security_opt:
+      - seccomp:unconfined

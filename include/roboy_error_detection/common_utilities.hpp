@@ -10,7 +10,7 @@ enum NotificationCode {
 
 std::map<NotificationCode, string> notificationMessages = {
         {UNDEFINED_NOTIFICATION, "undefined"},
-        {MOTOR_DEAD_NOTIFICATION, "Motor is dead, please check first all cables"},
+        {MOTOR_DEAD_NOTIFICATION, "Motor does not respond"},
         {MOTOR_ALIVE_NOTIFICATION, "Motor works fine"},
         {JOINT_INVALID_REL_ANGLE_NOTIFICATION, "Joint has an invalid angle"},
         {MOTOR_IS_RUNNING_BUT_TENDENT_NOT_NOTIFICATION, "Motor is running but the corresponding tendent is not moving"},
@@ -20,8 +20,8 @@ std::map<NotificationCode, string> notificationMessages = {
 
 std::map<NotificationCode, string> notificationExtraMessages = {
         {UNDEFINED_NOTIFICATION, "undefined"},
-        {MOTOR_DEAD_NOTIFICATION, "Please check all calbles"},
-        {MOTOR_ALIVE_NOTIFICATION, "..."},
+        {MOTOR_DEAD_NOTIFICATION, "Fix: Please check first all cables of the motor to fix the problem"},
+        {MOTOR_ALIVE_NOTIFICATION, ""},
         {JOINT_INVALID_REL_ANGLE_NOTIFICATION, "..."},
         {MOTOR_IS_RUNNING_BUT_TENDENT_NOT_NOTIFICATION, "..."},
         {JOINT_TOO_FAR_NOTIFICATION, "..."},

@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     RoboyErrorDetection handler(nh);
 
     // setup for listening to motor1 health
-    int MOTOR_ID = 0;
+    ObjectID MOTOR_ID = 0;
     handler.listenIfMotorIsDead(MOTOR_ID);
 
     // listening to warning topic to get notified on a warning

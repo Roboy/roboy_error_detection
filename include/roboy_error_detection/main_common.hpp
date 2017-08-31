@@ -10,6 +10,8 @@ void handleDangerNotification(const roboy_communication_control::DangerNotificat
 
 void sendMotorHealthStateMsg(ros::Publisher publisher, bool isMotorHealthy);
 
+void sendVelocityStateMsg(ros::Publisher publisher, short velocity);
+
 void initSystemNotificationSubscriber(ros::NodeHandlePtr nh);
 
 void sendJointAngle(ros::Publisher publisher, uint32_t absAngle = 0, uint32_t relAngle = 0, uint32_t tacho = 0,

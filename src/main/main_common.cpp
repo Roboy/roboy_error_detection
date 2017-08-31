@@ -45,6 +45,24 @@ void sendMotorHealthStateMsg(ros::Publisher publisher, bool isMotorHealthy) {
     publisher.publish(msg);
 }
 
+void sendVelocityStateMsg(ros::Publisher publisher, short velocity) {
+    int dummyMsgID = 1;
+    int dummyPwmRef = 0;
+    int dummyPosition = 0;
+    short dummyDisplacement = 0;
+    short dummyCurrentValue = 1;
+
+    roboy_communication_middleware::MotorStatus msg;
+    msg.id = dummyMsgID;
+    msg.pwmRef = {dummyPwmRef};
+    msg.position = {dummyPosition};
+    msg.velocity = {velocity};
+    msg.displacement = {dummyDisplacement};
+    msg.current = {dummyCurrentValue};
+
+    publisher.publish(msg);
+}
+
 void sendJointAngle(ros::Publisher publisher, uint32_t absAngle, uint32_t relAngle, uint32_t tacho,
                     uint8_t agcGain, bool tooFar, bool tooClose, int msgId) {
     roboy_communication_middleware::JointStatus msg;

@@ -1,5 +1,3 @@
-# Roboy error detection
-
 # Roboy Error Detection Module
 
 This module helps you to send system messages in a very easy way.
@@ -45,17 +43,13 @@ The package can receive over these topics the current angle of the joints as wel
 we need at Roboy the following packages: 
 ```bash
 cd YOUR_WORKSPACE_DIR/src
+git clone -b feature/error-detection-msgs https://github.com/CapChrisCap/roboy_communication
 git clone -b master https://github.com/Roboy/roboy_managing_node # responsible for setting up all Roboy ROS controllers to publish the topics
 git clone -b master https://github.com/Roboy/roboy_interface # required to start the openPowerLink connection
 git clone -b master https://github.com/Roboy/common_utilities # required because it provides general utitilities for the packages above
 ```
 
 ### 6. Source setup files
-```bash
-cd YOUR_WORKSPACE_DIR
-source devel/setup.bash
-```
-
 For a ROS Kinetic: 
 ```bash
 cd YOUR_WORKSPACE_DIR
@@ -66,9 +60,10 @@ source /opt/ros/kinetic/setup.bash
 ```bash
 cd YOUR_WORKSPACE_DIR
 catkin_make
+source devel/setup.bash
 ```
 
-### 5. Check if topics exist
+### 8. Check if topics exist
 To check if the installation was successful, execute the test main command 
 of this repository to check, whether the topics are published: 
 ```bash

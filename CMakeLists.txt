@@ -55,4 +55,4 @@ target_link_libraries(motor_tendent_inconsistence ${catkin_LIBRARIES} roboy_erro
 
 add_executable(presentation src/main/main_presentation.cpp)
 add_dependencies(presentation roboy_system_notification_gencpp roboy_communication_middleware_gencpp)
-target_link_libraries(presentation ${catkin_LIBRARIES} roboy_error_detection)
+target_link_libraries(presentation ${catkin_LIBRARIES} roboy_error_detection roboy_error_detection_main_base)

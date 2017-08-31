@@ -1,23 +1,24 @@
 #include "roboy_error_detection/roboyErrorDetection.hpp"
+#include "roboy_error_detection/main_common.hpp"
 
 void handleDebugNotification(const roboy_communication_control::DebugNotification::ConstPtr &msg) {
-    ROS_INFO("Received debug message with code %d | msg %s | object ID %s", msg->code, msg->msg.c_str(), msg->object.c_str());
+    ROS_INFO("Received debug message with code %d | msg %s | extra %s | object ID %s | duration %d", msg->code, msg->msg.c_str(), msg->extra.c_str(), msg->object.c_str(), msg->validityDuration);
 }
 
 void handleInfoNotification(const roboy_communication_control::InfoNotification::ConstPtr &msg) {
-    ROS_INFO("Received info message with code %d | msg %s | object ID %s", msg->code, msg->msg.c_str(), msg->object.c_str());
+    ROS_INFO("Received info message with code %d | msg %s | extra %s | object ID %s | duration %d", msg->code, msg->msg.c_str(), msg->extra.c_str(), msg->object.c_str(), msg->validityDuration);
 }
 
 void handleWarningNotification(const roboy_communication_control::WarningNotification::ConstPtr &msg) {
-    ROS_INFO("Received warning message with code %d | msg %s | object ID %s", msg->code, msg->msg.c_str(), msg->object.c_str());
+    ROS_INFO("Received warning message with code %d | msg %s | extra %s | object ID %s | duration %d", msg->code, msg->msg.c_str(), msg->extra.c_str(), msg->object.c_str(), msg->validityDuration);
 }
 
 void handleErrorNotification(const roboy_communication_control::ErrorNotification::ConstPtr &msg) {
-    ROS_INFO("Received error message with msg code %d | msg %s | object ID %s", msg->code, msg->msg.c_str(), msg->object.c_str());
+    ROS_INFO("Received error message with msg code %d | msg %s | extra %s | object ID %s | duration %d", msg->code, msg->msg.c_str(), msg->extra.c_str(), msg->object.c_str(), msg->validityDuration);
 }
 
 void handleDangerNotification(const roboy_communication_control::DangerNotification::ConstPtr &msg) {
-    ROS_INFO("Received danger message with msg code %d | msg %s | object ID %s", msg->code, msg->msg.c_str(), msg->object.c_str());
+    ROS_INFO("Received danger message with msg code %d | msg %s | extra %s | object ID %s | duration %d", msg->code, msg->msg.c_str(), msg->extra.c_str(), msg->object.c_str(), msg->validityDuration);
 }
 
 int main(int argc, char* argv[])
@@ -37,11 +38,7 @@ int main(int argc, char* argv[])
     handler.listenForMotorHealth(MOTOR_ID);
 
     // listening to warning topic to get notified on a warning
-    nh->subscribe(topicAddresses[DEBUG_LEVEL], 1, handleDebugNotification);
-    nh->subscribe(topicAddresses[INFO_LEVEL], 1, handleInfoNotification);
-    nh->subscribe(topicAddresses[WARNING_LEVEL], 1, handleWarningNotification);
-    nh->subscribe(topicAddresses[ERROR_LEVEL], 1, handleErrorNotification);
-    nh->subscribe(topicAddresses[DANGER_LEVEL], 1, handleDangerNotification);
+    initSystemNotificationSubscriber(nh);
 
     while (motor_publisher.getNumSubscribers() == 0) {
         ROS_INFO("Sleep one second until publisher is setup");
@@ -49,8 +46,21 @@ int main(int argc, char* argv[])
     }
 
     int counter = 0;
+    ros::Time begin = ros::Time::now();
+    ros::Time now;
     while (ros::ok()) {
         ROS_INFO_THROTTLE(5, "Listening for Roboy Errors!");
+        now = ros::Time::now();
+        if ((now - begin).toSec() > 11) {
+            // send an example motor is dead command
+            // ROS_INFO("Sends motor is DEAD command");
+            sendMotorHealthStateMsg(motor_publisher, false);
+        } else {
+            // send an example motor is alive command
+            // ROS_INFO("Sends motor is ALIVE command");
+            sendMotorHealthStateMsg(motor_publisher, true);
+        }
+
         ros::spinOnce();
         ros::Duration(2).sleep();
         counter++;
