@@ -1,0 +1,6 @@
+site_name: Roboy Error Detection
+site_description: Module for calculating errors from sensor information as input
+theme: readthedocs
+pages:
+- ['index.md', 'Index']
+- ['api.md', 'API']
