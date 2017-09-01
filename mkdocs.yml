@@ -2,5 +2,8 @@ site_name: Roboy Error Detection
 site_description: Module for calculating errors from sensor information as input
 theme: readthedocs
 pages:
-- ['index.md', 'Index']
-- ['api.md', 'API']
+- Index: 'index.md'
+- API:
+    - 'Motor patterns': 'motor-error-detection.md'
+    - 'Joint angle patterns': 'joint-angle-error-detection.md'
+- Contribute: 'contribute.md'
