@@ -3,6 +3,7 @@ site_description: Module for calculating errors from sensor information as input
 theme: readthedocs
 pages:
 - Index: 'index.md'
+- "System Overview": 'system_overview.md'
 - API:
     - 'Motor patterns': 'motor-error-detection.md'
     - 'Joint angle patterns': 'joint-angle-error-detection.md'
