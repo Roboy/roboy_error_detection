@@ -18,8 +18,8 @@ int main(int argc, char *argv[]) {
 
     ObjectID motorId = 0;
     ObjectID jointId = 0;
-    tacho minTacho = 0;
-    tacho maxTacho = 1023;
+    tacho minTacho = 0 + 1;
+    tacho maxTacho = 1023 - 1;
     handler.listenForMotorTendentInconsistence(motorId, jointId, minTacho, maxTacho);
 
     // listening to warning topic to get notified on a warning

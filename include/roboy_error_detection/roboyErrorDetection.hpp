@@ -33,7 +33,7 @@ public:
     RoboyErrorDetection(ros::NodeHandlePtr nh);
 
     /**
-     * Listen if the motor with the given id is health
+     * Listen if the motor with the given id is healthy
      * ROS topic.
      * @param motorId id of the motor, which should be observed
      * @param durationOfValidity interval, which defines the MIN sleep time in ms until the next message will be published. Set 0 to disable waiting a minimum time.
@@ -78,11 +78,13 @@ public:
                                        NotificationLevel logLevel = WARNING_LEVEL);
 
     /**
-     * Listen if a motor is running
+     * Listen in a given interval if a motor is running but the tendent is not moving. If this is the case, a ROS message
+     * is published over the given log level. The minTacho and maxTacho parameters define the minimum and maximum tacho
+     * value range, which defines in which interval the tendent is moving or not.
      * @param motorId id of the motor, which should be observed
      * @param jointId id of the joint, which should be observed
-     * @param minAngle minimum relative angle
-     * @param maxAngle maximum relative angle
+     * @param minTacho minimum tacho valure of a running tendent
+     * @param maxTacho maximum tacho value of a running tendent
      * @param durationOfValidity interval, which defines the MIN sleep time in ms until the next message will be published. Set 0 to disable waiting a minimum time.
      * @param logLevel message level of the published message
      */
@@ -98,8 +100,16 @@ public:
      */
     void listenForJointMagnetStatus(ObjectID jointId, NotificationInterval durationOfValidity = 2000, NotificationLevel logLevel = WARNING_LEVEL);
 
+    /**
+     * Just an internal method to provide the motor status message to the subscriptions
+     * @param msg
+     */
     void handleMotorStatusErrors(const roboy_communication_middleware::MotorStatus::ConstPtr &msg);
 
+    /**
+     * Just an internal method to provide the joint status message to the subscriptions
+     * @param msg
+     */
     void handleJointStatusErrors(const roboy_communication_middleware::JointStatus::ConstPtr &msg);
 
 private:
