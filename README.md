@@ -18,19 +18,19 @@ You can find more information about the ROS core here: [http://wiki.ros.org/rosc
 ### 1. Add dependency `roboy_communication` to workspace
 ```bash
 cd YOUR_WORKSPACE_DIR/src
-git clone -b feature/error-detection-msgs https://github.com/CapChrisCap/roboy_communication
+git clone -b feature/error-detection-msgs https://github.com/Roboy/roboy_communication
 ```
 
 ### 2. Add dependency `roboy_system_notification` to workspace
 ```bash
 cd YOUR_WORKSPACE_DIR/src
-git clone -b feature/error-detection-msgs https://github.com/CapChrisCap/roboy_system_notification
+git clone -b feature/error-detection-msgs https://github.com/Roboy/roboy_system_notification
 ```
 
 ### 4. Add this repository to your workspace
 ```bash
 cd YOUR_WORKSPACE_DIR/src
-git clone https://github.com/CapChrisCap/roboy_error_detection
+git clone https://github.com/Roboy/roboy_error_detection
 ```
 
 ### 5. Important! Add packages to setup required connections
@@ -43,7 +43,7 @@ The package can receive over these topics the current angle of the joints as wel
 we need at Roboy the following packages: 
 ```bash
 cd YOUR_WORKSPACE_DIR/src
-git clone -b feature/error-detection-msgs https://github.com/CapChrisCap/roboy_communication
+git clone -b feature/error-detection-msgs https://github.com/Roboy/roboy_communication
 git clone -b master https://github.com/Roboy/roboy_managing_node # responsible for setting up all Roboy ROS controllers to publish the topics
 git clone -b master https://github.com/Roboy/roboy_interface # required to start the openPowerLink connection
 git clone -b master https://github.com/Roboy/common_utilities # required because it provides general utitilities for the packages above
@@ -131,21 +131,21 @@ Finally, you can define over the logLevel over which channel the health check re
 
  - The `motorId` is the motor id, which identifies the motor you want to observe
  - The `minPublishIntervalInMs` Minimum time in milliseconds from one health check to the next health check of this motor
- - The `logLevel` parameter defines the system notification level, which also determines over which topic the health check message is published ([see all log levels](https://github.com/CapChrisCap/roboy_system_notification/blob/master/include/roboy_system_notification/common_utilities.hpp#L12))
+ - The `logLevel` parameter defines the system notification level, which also determines over which topic the health check message is published ([see all log levels](https://github.com/Roboy/roboy_system_notification/blob/master/include/roboy_system_notification/common_utilities.hpp#L12))
 
 Output: 
 
  - the message ID is generated randomly
  - possible output formats, depending on the log level: 
-   - [DEBUG_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DebugNotification.msg)
-   - [INFO_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/InfoNotification.msg)
-   - [WARNING_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/WarningNotification.msg)
-   - [ERROR_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/ErrorNotification.msg)
-   - [DANGER_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DangerNotification.msg)
+   - [DEBUG_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DebugNotification.msg)
+   - [INFO_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/InfoNotification.msg)
+   - [WARNING_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/WarningNotification.msg)
+   - [ERROR_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/ErrorNotification.msg)
+   - [DANGER_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DangerNotification.msg)
  - message code is either
-   - [Motor is Dead ID](https://github.com/CapChrisCap/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L3)
-   - or [Motor is Alive ID](https://github.com/CapChrisCap/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L4)
- - the `msg` parameter is received from [this map, depending on the message code](https://github.com/CapChrisCap/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L7)
+   - [Motor is Dead ID](https://github.com/Roboy/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L3)
+   - or [Motor is Alive ID](https://github.com/Roboy/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L4)
+ - the `msg` parameter is received from [this map, depending on the message code](https://github.com/Roboy/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L7)
  - the `objectId` is the ID of the observed motor
 
 #### Example: 

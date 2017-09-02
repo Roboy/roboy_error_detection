@@ -55,13 +55,13 @@ void RoboyErrorDetection::listenForJointMagnetStatus(ObjectID jointId, Notificat
     addSubscription(jointId, JOINT_MAGNET_CHECK_SUBSCRIPTION, notificationData, logLevel);
 }
 
-void RoboyErrorDetection::listenForMotorTendentInconsistence(ObjectID motorId, ObjectID jointId,
+void RoboyErrorDetection::listenForMotorTendonInconsistence(ObjectID motorId, ObjectID jointId,
                                                              NotificationInterval durationOfValidity, tacho minTacho,
                                                              tacho maxTacho, NotificationLevel logLevel) {
     // TODO: check for invalid input
 
-    MotorTendentInconsistenceNotificationData notificationData(jointId, durationOfValidity, minTacho, maxTacho);
-    addSubscription(motorId, MOTOR_IS_RUNNING_BUT_TENDENT_NOT_SUBSCRIPTION, notificationData, logLevel);
+    MotorTendonInconsistenceNotificationData notificationData(jointId, durationOfValidity, minTacho, maxTacho);
+    addSubscription(motorId, MOTOR_IS_RUNNING_BUT_TENDON_NOT_SUBSCRIPTION, notificationData, logLevel);
 }
 
 void RoboyErrorDetection::addSubscription(ObjectID objectId, SubscriptionType subscriptionType,
@@ -88,7 +88,7 @@ void RoboyErrorDetection::handleJointStatusErrors(const roboy_communication_midd
     receivedJointStatus = true;
 
     handleJointInvalidRelAngleCheck(msg);
-    handleMotorIsRunningButTendentNot(msg);
+    handleMotorIsRunningButTendonNot(msg);
     handleJointMagnetErrors(msg);
 }
 
@@ -168,7 +168,7 @@ RoboyErrorDetection::handleJointInvalidRelAngleCheck(const roboy_communication_m
 }
 
 void
-RoboyErrorDetection::handleMotorIsRunningButTendentNot(
+RoboyErrorDetection::handleMotorIsRunningButTendonNot(
         const roboy_communication_middleware::JointStatus::ConstPtr &msg
 ) {
     // only allow to run this method if we still received at least one joint and one motor message
@@ -176,11 +176,11 @@ RoboyErrorDetection::handleMotorIsRunningButTendentNot(
         return;
     }
 
-    for (auto const &motorEntry : subscriptions[MOTOR_IS_RUNNING_BUT_TENDENT_NOT_SUBSCRIPTION]) {
+    for (auto const &motorEntry : subscriptions[MOTOR_IS_RUNNING_BUT_TENDON_NOT_SUBSCRIPTION]) {
         ObjectID motorId = motorEntry.first;
 
-        if (lastMotorTendentInconsistentCheck.find(motorId) == lastMotorTendentInconsistentCheck.end()) {
-            lastMotorTendentInconsistentCheck[motorId] = {};
+        if (lastMotorTendonInconsistentCheck.find(motorId) == lastMotorTendonInconsistentCheck.end()) {
+            lastMotorTendonInconsistentCheck[motorId] = {};
         }
 
         // only allow method if motor is running
@@ -191,21 +191,21 @@ RoboyErrorDetection::handleMotorIsRunningButTendentNot(
         // loop and process all subscriptions for this motor
         for (auto const &motorSubscriptions : motorEntry.second) {
             NotificationLevel lvl = motorSubscriptions.first;
-            MotorTendentInconsistenceNotificationData subscriptionData = boost::get<MotorTendentInconsistenceNotificationData>(
+            MotorTendonInconsistenceNotificationData subscriptionData = boost::get<MotorTendonInconsistenceNotificationData>(
                     motorSubscriptions.second);
 
             ObjectID jointId = std::get<0>(subscriptionData);
 
-            if (lastMotorTendentInconsistentCheck[motorId].find(lvl) ==
-                lastMotorTendentInconsistentCheck[motorId].end()) {
-                lastMotorTendentInconsistentCheck[motorId][lvl] = ros::Time(0); // set invalid time
+            if (lastMotorTendonInconsistentCheck[motorId].find(lvl) ==
+                lastMotorTendonInconsistentCheck[motorId].end()) {
+                lastMotorTendonInconsistentCheck[motorId][lvl] = ros::Time(0); // set invalid time
             }
 
             // determine time since last health check for given motor
-            float timeSinceLastMotorTendentInconsistentCheck = 0.0;
-            if (lastMotorTendentInconsistentCheck[motorId][lvl].isValid()) {
-                timeSinceLastMotorTendentInconsistentCheck =
-                        (ros::Time::now() - lastMotorTendentInconsistentCheck[motorId][lvl]).toSec() *
+            float timeSinceLastMotorTendonInconsistentCheck = 0.0;
+            if (lastMotorTendonInconsistentCheck[motorId][lvl].isValid()) {
+                timeSinceLastMotorTendonInconsistentCheck =
+                        (ros::Time::now() - lastMotorTendonInconsistentCheck[motorId][lvl]).toSec() *
                         1000; // time in ms
             }
 
@@ -213,12 +213,12 @@ RoboyErrorDetection::handleMotorIsRunningButTendentNot(
             NotificationInterval durationOfValidity = std::get<1>(subscriptionData);
             tacho minTacho = std::get<2>(subscriptionData), maxTacho = std::get<3>(subscriptionData);
 
-            if (!lastMotorTendentInconsistentCheck[motorId][lvl].isValid() || durationOfValidity == 0 ||
-                durationOfValidity < timeSinceLastMotorTendentInconsistentCheck) {
+            if (!lastMotorTendonInconsistentCheck[motorId][lvl].isValid() || durationOfValidity == 0 ||
+                durationOfValidity < timeSinceLastMotorTendonInconsistentCheck) {
                 if (minTacho > currentTacho || maxTacho < currentTacho) {
-                    publishMessage(lvl, MOTOR_IS_RUNNING_BUT_TENDENT_NOT_NOTIFICATION, motorId,
+                    publishMessage(lvl, MOTOR_IS_RUNNING_BUT_TENDON_NOT_NOTIFICATION, motorId,
                                    getRealDurationOfValidity(durationOfValidity));
-                    lastMotorTendentInconsistentCheck[motorId][lvl] = ros::Time::now();
+                    lastMotorTendonInconsistentCheck[motorId][lvl] = ros::Time::now();
                 }
             }
         }

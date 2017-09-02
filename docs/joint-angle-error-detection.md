@@ -16,24 +16,24 @@ void listenForInvalidRelativeJointAngle(ObjectID jointId, angle minAngle, angle 
     | jointId | `ObjectID` | - | `true` | `jointId` is the joint id, which identifies the joint you want to observe |
     | minAngle | `angle` | - | `true` | minimum relative angle |
     | maxAngle | `angle` | - | `true` | maximum relative angle |
-    | logLevel| [DEBUG_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DebugNotification.msg), [INFO_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/InfoNotification.msg), [WARNING_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/WarningNotification.msg), [ERROR_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/ErrorNotification.msg), [DANGER_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DangerNotification.msg) | WARNING_LEVEL | `false` | Defines the system notification level, which also determines over which topic the health check message is published ([see all log levels](https://github.com/CapChrisCap/roboy_system_notification/blob/master/include/roboy_system_notification/common_utilities.hpp#L12)) |
+    | logLevel| [DEBUG_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DebugNotification.msg), [INFO_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/InfoNotification.msg), [WARNING_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/WarningNotification.msg), [ERROR_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/ErrorNotification.msg), [DANGER_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DangerNotification.msg) | WARNING_LEVEL | `false` | Defines the system notification level, which also determines over which topic the health check message is published ([see all log levels](https://github.com/Roboy/roboy_system_notification/blob/master/include/roboy_system_notification/common_utilities.hpp#L12)) |
 
 * **Output Topics:**
 
     General format depending on the log level: 
     
-    - [DEBUG_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DebugNotification.msg)
-    - [INFO_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/InfoNotification.msg)
-    - [WARNING_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/WarningNotification.msg)
-    - [ERROR_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/ErrorNotification.msg)
-    - [DANGER_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DangerNotification.msg)
+    - [DEBUG_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DebugNotification.msg)
+    - [INFO_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/InfoNotification.msg)
+    - [WARNING_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/WarningNotification.msg)
+    - [ERROR_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/ErrorNotification.msg)
+    - [DANGER_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DangerNotification.msg)
  
     **Modified parameters:** 
     
     | name     | condition | Description |
     | -------- | --------- | ------------------------- |
-    | msg      | -         | [message string list](https://github.com/CapChrisCap/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L15) |
-    | code     | Angle is not in interval | [JOINT_INVALID_REL_ANGLE_NOTIFICATION](https://github.com/CapChrisCap/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L7) |
+    | msg      | -         | [message string list](https://github.com/Roboy/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L15) |
+    | code     | Angle is not in interval | [JOINT_INVALID_REL_ANGLE_NOTIFICATION](https://github.com/Roboy/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L7) |
     | object | - | same as input parameter `jointId` - ID of to be observed object: same as `jointId` parameter | 
     
 * **Example**:
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
     return 0;
 }
 ```
-> Example taken from the [main_joint_rel_angle_check.cpp file](https://github.com/CapChrisCap/roboy_error_detection/src/main/main_joint_rel_angle_check.cpp)
+> Example taken from the [main_joint_rel_angle_check.cpp file](https://github.com/Roboy/roboy_error_detection/src/main/main_joint_rel_angle_check.cpp)
     
 ## Listen for Too Close Joint Sensor Magnet
 
@@ -75,25 +75,25 @@ void listenForJointMagnetStatus(ObjectID jointId, NotificationInterval durationO
     | ----    | ---- | ------- | --------- | ----------- | 
     | jointId | `ObjectID` | - | `true` | `jointId` is the joint id, which identifies the joint you want to observe |
     | durationOfValidity| `NotificationInterval` | 2000 | `false` | Minimum time in milliseconds from one health check to the next health check of this motor |
-    | logLevel| [DEBUG_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DebugNotification.msg), [INFO_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/InfoNotification.msg), [WARNING_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/WarningNotification.msg), [ERROR_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/ErrorNotification.msg), [DANGER_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DangerNotification.msg) | WARNING_LEVEL | `false` | Defines the system notification level, which also determines over which topic the health check message is published ([see all log levels](https://github.com/CapChrisCap/roboy_system_notification/blob/master/include/roboy_system_notification/common_utilities.hpp#L12)) |
+    | logLevel| [DEBUG_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DebugNotification.msg), [INFO_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/InfoNotification.msg), [WARNING_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/WarningNotification.msg), [ERROR_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/ErrorNotification.msg), [DANGER_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DangerNotification.msg) | WARNING_LEVEL | `false` | Defines the system notification level, which also determines over which topic the health check message is published ([see all log levels](https://github.com/Roboy/roboy_system_notification/blob/master/include/roboy_system_notification/common_utilities.hpp#L12)) |
 
 * **Output Topics:**
 
     General format depending on the log level: 
     
-    - [DEBUG_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DebugNotification.msg)
-    - [INFO_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/InfoNotification.msg)
-    - [WARNING_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/WarningNotification.msg)
-    - [ERROR_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/ErrorNotification.msg)
-    - [DANGER_LEVEL](https://github.com/CapChrisCap/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DangerNotification.msg)
+    - [DEBUG_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DebugNotification.msg)
+    - [INFO_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/InfoNotification.msg)
+    - [WARNING_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/WarningNotification.msg)
+    - [ERROR_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/ErrorNotification.msg)
+    - [DANGER_LEVEL](https://github.com/Roboy/roboy_communication/blob/feature/error-detection-msgs/roboy_communication_control/msg/DangerNotification.msg)
  
     **Modified parameters:** 
     
     | name     | condition | Description |
     | -------- | --------- | ------------------------- |
-    | msg      | -         | [message string list](https://github.com/CapChrisCap/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L15) |
-    | code     | Magnet too far away | [JOINT_TOO_FAR_NOTIFICATION](https://github.com/CapChrisCap/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L7) |
-    | code     | Magnet too close | [JOINT_TOO_CLOSE_NOTIFICATION](https://github.com/CapChrisCap/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L8) |
+    | msg      | -         | [message string list](https://github.com/Roboy/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L15) |
+    | code     | Magnet too far away | [JOINT_TOO_FAR_NOTIFICATION](https://github.com/Roboy/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L7) |
+    | code     | Magnet too close | [JOINT_TOO_CLOSE_NOTIFICATION](https://github.com/Roboy/roboy_error_detection/blob/master/include/roboy_error_detection/common_utilities.hpp#L8) |
     | object | - | same as input parameter `jointId` - ID of to be observed object: same as `jointId` parameter | 
     
 * **Example**:
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
     return 0;
 }
 ```
-> Example taken from the [main_joint_magnet_check.cpp file](https://github.com/CapChrisCap/roboy_error_detection/src/main/main_joint_magnet_check.cpp)
+> Example taken from the [main_joint_magnet_check.cpp file](https://github.com/Roboy/roboy_error_detection/src/main/main_joint_magnet_check.cpp)
     
 
 

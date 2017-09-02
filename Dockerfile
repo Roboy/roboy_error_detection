@@ -21,8 +21,8 @@ ADD . /var/workspace/src/roboy_error_detection
 
 WORKDIR /var/workspace/src
 
-RUN git clone -b master https://github.com/CapChrisCap/roboy_system_notification
-RUN git clone -b feature/error-detection-msgs https://github.com/CapChrisCap/roboy_communication
+RUN git clone -b master https://github.com/Roboy/roboy_system_notification
+RUN git clone -b feature/error-detection-msgs https://github.com/Roboy/roboy_communication
 
 RUN chmod u+x ./roboy_error_detection/bin/run-docker.sh
 
