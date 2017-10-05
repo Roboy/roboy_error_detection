@@ -3,9 +3,10 @@
 ## System Model
 
 The module works like this: 
+
  - The module receives information from Roboy (or any data source) over ROS topic subscriptions
- - The modules analyses the data and if the module detects something unnormal, it publishes the information over 
- the Roboy System Notification module to share the information with all subscribers (like a monitoring system)
+ - The module analyses the data and checks it for not "normal" information or structures. If detects something, it publishes the information over 
+ the Roboy System Notification module to share the information with all subscribers (like a monitoring system).
 
 ![System overview](./screenshots/slide_system_overview.PNG)
 
